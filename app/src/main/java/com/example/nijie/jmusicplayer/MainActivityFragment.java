@@ -33,9 +33,9 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         @Override public void onStart(String mime, int sampleRate, int channels, long duration) {
             Log.d(LOG_TAG, "onStart called: " + mime + " sampleRate:" + sampleRate + " channels:" + channels);
             if (duration == 0)
-                Toast.makeText(getActivity(), "This is a LIVE Stream!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Live Streaming!", Toast.LENGTH_SHORT).show();
             else
-                Toast.makeText(getActivity(), "This is a RECORDING!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Local Playback!", Toast.LENGTH_SHORT).show();
             tv.setText("Playing content:" + mime + " " + sampleRate + "Hz " + (duration/1000000) + "sec");
         }
         @Override public void onPlayUpdate(int percent, long currentms, long totalms) {
@@ -58,19 +58,21 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //NJ inflate the root view
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        //NJ set the listener for all buttons and seek bar
 
         // set listeners on buttons
-        ((Button)rootView.findViewById(R.id.idbut1)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut2a)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut2b)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut2c)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut3)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut4)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut5)).setOnClickListener((View.OnClickListener) this);
-        ((Button)rootView.findViewById(R.id.idbut6)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_LISTCODEC)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_TESTMP3)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_TESTAAC)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_TESTWMA)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_LOADCUSTOM)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_PLAY)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_PAUSE)).setOnClickListener((View.OnClickListener) this);
+        ((Button)rootView.findViewById(R.id.IDBUT_STOP)).setOnClickListener((View.OnClickListener) this);
 
-        seekbar = (SeekBar)rootView.findViewById(R.id.seekbar);
+        seekbar = (SeekBar)rootView.findViewById(R.id.IDSEEKBAR);
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -79,8 +81,8 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
             }
         });
 
-        et = (EditText)rootView.findViewById(R.id.idet1);
-        tv = (TextView)rootView.findViewById(R.id.idtv1);
+        et = (EditText)rootView.findViewById(R.id.IDEDITTEXT_TESTSOURCE);
+        tv = (TextView)rootView.findViewById(R.id.IDTEXTVIEW_SEEKBAR);
 
         return rootView;
 
@@ -91,46 +93,48 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         int id = v.getId();
 
         switch (id) {
-            case R.id.idbut1:
-                showDialog(getActivity(), "codecs", JPlayer.listCodecs());
+            case R.id.IDBUT_LISTCODEC:
+                showDialog(getActivity(), "Decoders", JPlayer.listCodecs());
               break;
 
-            case R.id.idbut2a:
+            case R.id.IDBUT_TESTMP3:
                 Log.d(LOG_TAG, "Load an audio file from resources.");
                 p.setDataSource(getActivity(), R.raw.testmp3);
                 Toast.makeText(getActivity(), "Now press play!", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.idbut2b:
+            case R.id.IDBUT_TESTAAC:
                 Log.d(LOG_TAG, "Load an audio file from resources.");
                 p.setDataSource(getActivity(), R.raw.testaac);
                 Toast.makeText(getActivity(), "Now press play!", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.idbut2c:
+            case R.id.IDBUT_TESTWMA:
                 Log.d(LOG_TAG, "Load an audio file from resources.");
                 p.setDataSource(getActivity(), R.raw.testwma);
                 Toast.makeText(getActivity(), "Now press play!", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.idbut3:
+            case R.id.IDBUT_LOADCUSTOM:
                 Log.d(LOG_TAG, "Load an audio file from given location.");
                 p.setDataSource(et.getText().toString());
                 Toast.makeText(getActivity(), "Now press play!", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.idbut4:
+            case R.id.IDBUT_PLAY:
                 Log.d(LOG_TAG, "Start playing!");
-                p.play();
+                p.asynchronousPlay();
                 break;
 
-            case R.id.idbut5:
+            case R.id.IDBUT_PAUSE:
                 Log.d(LOG_TAG, "Pause.");
                 p.pause();
+                Toast.makeText(getActivity(), "Paused! Press Stop to change source", Toast.LENGTH_SHORT).show();
                 break;
 
-            case R.id.idbut6:
+            case R.id.IDBUT_STOP:
                 Log.d(LOG_TAG, "Stop.");
+                Toast.makeText(getActivity(), "Now stopped!", Toast.LENGTH_SHORT).show();
                 p.stop();
                 break;
 
@@ -138,6 +142,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     }
 
     private static void showDialog(Context context, String title, String msg) {
+        //NJ AlertDialog.Builder is a static class, so it has to be in static context
         new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(msg)

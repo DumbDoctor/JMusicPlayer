@@ -12,6 +12,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //NJ the layout is defined as a fragment which is the mainactivityfragment class
         setContentView(R.layout.activity_main);
 
      }
